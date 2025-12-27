@@ -21,7 +21,7 @@ window.addEventListener('load', function() {
     .catch(err => {
       console.error("ERRORE:", err);
       // Fallback grafico fisso per test
-      draw([{value: 0}, {value: 3}, {value: -2}, {value: 1}]);
+      draw([{value: 0}, {value: 0}, {value: 0}, {value: 0}]);
     });
 
   function draw(data) {
