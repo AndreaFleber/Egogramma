@@ -1,0 +1,36 @@
+name: Daily flat entry
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # ogni giorno a mezzanotte UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Update data.json
+        run: |
+          TODAY=$(date -u +"%Y-%m-%d")
+
+          if [ ! -f data.json ]; then
+            echo "[]" > data.json
+          fi
+
+          if jq -e --arg d "$TODAY" '.[] | select(.date == $d)' data.json > /dev/null; then
+            echo "Entry for today already exists"
+          else
+            jq --arg d "$TODAY" '. + [{date: $d, value: 0}]' data.json > tmp.json
+            mv tmp.json data.json
+          fi
+
+      - name: Commit changes
+        run: |
+          git config user.name "egogramma-bot"
+          git config user.email "bot@egogramma"
+          git add data.json
+          git commit -m "Daily flat entry" || echo "Nothing to commit"
+          git push
